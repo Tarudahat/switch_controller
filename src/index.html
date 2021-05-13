@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<body>
+<h1>Websocket Echo Server</h1>
+<!--input thing that fires the send function when -->
+<form id="ws" onsubmit="return send(this.message);">
+    <input name="message">
+    <input type="submit" value="Send">
+</form>
+<p id="gamepad-info">Waiting for Gamepad.</p>
+<p id="var-a">var a:</p>
+<script>
+    
+    var sock = new WebSocket("ws://" + window.location.host);
+
+    sock.onopen = recv.bind(window, "Connected");
+    sock.onclose = recv.bind(window, "Disconnected");
+
+    sock.onmessage = function(msg) { recv(msg.data) };
+    sock.onerror = function(err) { recv("Error: " + err); };
+
+    function recv(msg) {
+        var e = document.createElement("PRE");
+        e.innerText = msg;
+        document.body.appendChild(e);
+    }
+
+    function send(msg) {
+        sock.send(msg.value);
+        msg.value = "";
+        return false;
+    }
+
+    var gamepadInfo = document.getElementById("gamepad-info");
+    var gamepads;
+    var a_html=document.getElementById("var-a");
+    var game_pad_connected=false;
+    var gp;
+
+    /*
+     'DPad-Up','DPad-Down','DPad-Left','DPad-Right'
+    'Start','Back','Axis-Left','Axis-Right',
+    'LB','RB','Power','A','B','X','Y'
+    */
+
+    //check for controller connection
+    window.addEventListener("gamepadconnected", function() {
+        gp = navigator.getGamepads()[0];
+        gamepadInfo.innerHTML = "Gamepad connected at index " + gp.index + ": " + gp.id + ". It has " + gp.buttons.length + " buttons and " + gp.axes.length + " axes.";
+        game_pad_connected=true;
+    
+    });
+
+    window.addEventListener("gamepaddisconnected", function() {
+        gamepadInfo.innerHTML = "Waiting for gamepad.";
+    });
+
+
+    function get_button(button)
+    {
+        if (game_pad_connected==true){
+            //Check if it is object
+                if(typeof(button)=="object")
+                {
+                    //return if it's pressed or not
+                    return button.pressed;
+                }
+            }
+        return false;
+    };
+
+    function loop()
+    {
+        if(game_pad_connected==true){
+            //go trough all the buttons of the controller
+            for (let index = 0; index < 16; index++) {
+                //update the controller
+                gp = navigator.getGamepads()[0];
+                //get input, and send it to the server
+                if(get_button(gp.buttons[index])){
+                    send(index);
+                }
+            }
+        }
+    }
+
+   
+
+    setInterval(loop,150);
+
+</script>
+</body>

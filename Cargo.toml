@@ -1,0 +1,19 @@
+[package]
+name = "websocket"
+version = "0.1.0"
+authors = ["Vickenty Fesunov <kent@setattr.net>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+gotham = "0.6.0"
+futures = "0.3.1"
+tokio-tungstenite = "0.14"
+tokio = "1.0"
+pretty_env_logger = "0.4"
+sha1 = "0.6"
+base64 = "0.13"
+winput = "0.2.4"
+lazy_static = "1.4.0"
+anyhow = "1.0.40"
