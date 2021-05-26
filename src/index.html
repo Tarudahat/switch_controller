@@ -1,13 +1,9 @@
 <!DOCTYPE html>
 <body>
-<h1>Websocket Echo Server</h1>
-<!--input thing that fires the send function when -->
-<form id="ws" onsubmit="return send(this.message);">
-    <input name="message">
-    <input type="submit" value="Send">
-</form>
 <p id="gamepad-info">Waiting for Gamepad.</p>
-<p id="var-a">var a:</p>
+<p id="var-a">Last button:</p>
+<p id="var-b">Stick axes:</p>
+
 <script>
     
     var sock = new WebSocket("ws://" + window.location.host);
@@ -19,28 +15,26 @@
     sock.onerror = function(err) { recv("Error: " + err); };
 
     function recv(msg) {
-        var e = document.createElement("PRE");
+        let e = document.createElement("PRE");
         e.innerText = msg;
         document.body.appendChild(e);
     }
 
     function send(msg) {
-        sock.send(msg.value);
-        msg.value = "";
+        console.log(msg);
+        sock.send(msg);
+        msg.value = 0;
         return false;
     }
 
     var gamepadInfo = document.getElementById("gamepad-info");
     var gamepads;
-    var a_html=document.getElementById("var-a");
+    var button_index_display= document.getElementById("var-a");
+    var stick_display= document.getElementById("var-b");
     var game_pad_connected=false;
     var gp;
 
-    /*
-     'DPad-Up','DPad-Down','DPad-Left','DPad-Right'
-    'Start','Back','Axis-Left','Axis-Right',
-    'LB','RB','Power','A','B','X','Y'
-    */
+    
 
     //check for controller connection
     window.addEventListener("gamepadconnected", function() {
@@ -71,21 +65,52 @@
     function loop()
     {
         if(game_pad_connected==true){
-            //go trough all the buttons of the controller
-            for (let index = 0; index < 16; index++) {
-                //update the controller
-                gp = navigator.getGamepads()[0];
-                //get input, and send it to the server
+            //update the controller
+            gp = navigator.getGamepads()[0];   
+
+            var json =
+            {
+                buttons:gp.buttons.map(button=> button.pressed),
+                axes:gp.axes,
+                //Up Down Left Right
+                left_stick:[false,false,false,false],
+            };
+
+            for (let index = 0; index < gp.buttons.length; index++) {
+                //get input, this is for displaying only
                 if(get_button(gp.buttons[index])){
-                    send(index);
+                    button_index_display.innerHTML=index;
                 }
             }
+
+            //left stick trash
+            if (gp.axes[0]>0.2)
+            {
+                json.left_stick[3]=true;
+            }
+            else if (gp.axes[0]<-0.2)
+            {
+                json.left_stick[2]=true;
+            }
+            if (gp.axes[1]>0.2)
+            {
+                json.left_stick[1]=true;
+            }
+            else if (gp.axes[1]<-0.2)
+            {
+                json.left_stick[0]=true;
+            }
+            
+            let a= JSON.stringify(json); 
+            send(a);
+
         }
     }
 
    
 
-    setInterval(loop,150);
+    setInterval(loop,45);
 
 </script>
 </body>
+

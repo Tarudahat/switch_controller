@@ -6,7 +6,7 @@ ALT
 _
 Q
 SHIFT
-_
+ENTER
 ESC
 _
 MS_M

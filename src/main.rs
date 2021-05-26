@@ -1,11 +1,12 @@
 use futures::prelude::*;
-use gotham::hyper::{upgrade::OnUpgrade, Body, HeaderMap, Response, StatusCode};
+use gotham::{hyper::{upgrade::OnUpgrade, Body, HeaderMap, Response, StatusCode}};
 use gotham::state::{request_id, FromState, State};
-use winput::{Vk, Button};
 use std::{fs::File, io};
-use std::io::{Write, BufReader, BufRead};
+use std::io::{BufReader, BufRead};
 use std::sync::Mutex;
 use anyhow::Error;
+use enigo::{Enigo, MouseControllable};
+use serde::{Deserialize};
 
 #[macro_use]
 extern crate lazy_static;
@@ -15,7 +16,15 @@ extern crate anyhow;
 mod ws;
 
 lazy_static! {
-    static ref global_lines: Mutex<Vec<String>>=Mutex::new(Vec::new());
+    static ref GLOBAL_LINES: Mutex<Vec<String>>=Mutex::new(Vec::new());
+}
+
+#[derive(Deserialize, Debug)]
+struct Controller
+{
+    buttons:Vec<bool>,
+    axes:Vec<f32>,
+    left_stick:Vec<bool>,
 }
 
 fn main()-> Result<(), Error>  {
@@ -26,17 +35,13 @@ fn main()-> Result<(), Error>  {
 
     let mut lines= buffered
         .lines()
-        .collect::<io::Result<Vec<String>>>()?
-        .iter()
-        .enumerate()
-        .map(|(i, line)| format!("{}:{}",i, line))
-        .collect::<Vec<String>>();
+        .collect::<io::Result<Vec<String>>>()?;
 
-    global_lines.lock().map_err(|_| anyhow!("aliens attacked"))?.append(&mut lines);
+    GLOBAL_LINES.lock().map_err(|_| anyhow!("aliens attacked"))?.append(&mut lines);
 
-    println!("{:#?}", global_lines.lock().map_err(|_| anyhow!("aliens attacked") )?);
+    println!("{:#?}", GLOBAL_LINES.lock().map_err(|_| anyhow!("aliens attacked") )?);
 
-    let addr = "192.168.1.94:5000";
+    let addr = "192.168.1.3:5000";
 
     println!("Listening on http://{}/", addr);
 
@@ -81,8 +86,8 @@ where
 {
     let (mut _sink, mut stream) = stream.split();
     //if a client enters say so
+    let mut enigo = Enigo::new();
     println!("Client {} connected", req_id);
-
     while let Some(message) = stream
         .next()
         .await
@@ -91,20 +96,17 @@ where
     {
         println!("{}: {}", req_id, message);
 
+        if let ws::Message::Text(text)=message{
+            let output_str = &text;
+            
+            //controller data
+            let cd: Controller= serde_json::from_str(output_str).map_err(|_| println!("JSON object wack"))?;
 
-        winput::send(&global_lines.lock().map_err(|_| anyhow!("aliens attacked") )[0]); 
 
-        //echo "message" back 
-        /*match sink.send(message).await {
-            Ok(()) => (),
-             this error indicates a successfully closed connection
-            Err(ws::Error::ConnectionClosed) => break,
-            Err(error) => {
-                println!("Websocket send error: {}", error);
-                return Err(());
-            }
-        }*/
-       
+            enigo.mouse_move_relative((cd.axes[2]*15.0) as i32, (cd.axes[3]*15.0) as i32);
+
+        }
+
     }
 
     println!("Client {} disconnected", req_id);
