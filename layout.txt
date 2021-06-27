@@ -1,9 +1,9 @@
-S
-A
-Y
-X->doesn't work bc it exits the browser
-L
-R
+-S
+-A
+-Y
+-X
+-L
+-R
 ZL
 ZR
 ENTER

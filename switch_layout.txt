@@ -1,7 +1,7 @@
 B
 A
 Y
-X->doesn't work bc it exits the browser
+X
 L
 R
 ZL

@@ -29,23 +29,23 @@ struct Controller
 
 fn handle_input(input_str:&String){
     match input_str.as_str() {
-        "MS_L"=>Enigo.mouse_down(MouseButton::Left),
-        "MS_R"=>Enigo.mouse_down(MouseButton::Right),
-        "MS_M"=>Enigo.mouse_down(MouseButton::Middle),
-        "ESC"=>Enigo.key_down(Key::Escape),
-        "ENTER"=>Enigo.key_down(Key::Return),
-        "SHIFT"=>Enigo.key_down(Key::Shift),
-        "DELETE"=>Enigo.key_down(Key::Delete),
-        "ALT"=>Enigo.key_down(Key::Alt),
-        "UP"=>Enigo.key_down(Key::UpArrow),
-        "DOWN"=>Enigo.key_down(Key::DownArrow),
-        "LEFT"=>Enigo.key_down(Key::LeftArrow),
-        "RIGHT"=>Enigo.key_down(Key::RightArrow),
+        "MS_L"=>Enigo.mouse_click(MouseButton::Left),
+        "MS_R"=>Enigo.mouse_click(MouseButton::Right),
+        "MS_M"=>Enigo.mouse_click(MouseButton::Middle),
+        "ESC"=>Enigo.key_click(Key::Escape),
+        "ENTER"=>Enigo.key_click(Key::Return),
+        "SHIFT"=>Enigo.key_click(Key::Shift),
+        "DELETE"=>Enigo.key_click(Key::Delete),
+        "ALT"=>Enigo.key_click(Key::Alt),
+        "UP"=>Enigo.key_click(Key::UpArrow),
+        "DOWN"=>Enigo.key_click(Key::DownArrow),
+        "LEFT"=>Enigo.key_click(Key::LeftArrow),
+        "RIGHT"=>Enigo.key_click(Key::RightArrow),
         "_"=>{},
         _=>{
             //using expect here isn't that big brain
             let char=input_str.chars().last().expect("ERROR: input was not a char nor an accepted string");
-            Enigo.key_down(Key::Layout(char))
+            Enigo.key_click(Key::Layout(char))
         },
     }
 }
