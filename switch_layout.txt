@@ -1,4 +1,4 @@
-S
+B
 A
 Y
 X->doesn't work bc it exits the browser
@@ -6,8 +6,8 @@ L
 R
 ZL
 ZR
-ENTER
-ENTER
+-
++
 L_STICK_CLICK
 R_STICK_CLICK
 UP

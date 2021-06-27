@@ -4,6 +4,17 @@
 <p id="var-a">Last button:</p>
 <p id="var-b">Stick axes:</p>
 
+<style>
+    body
+    {
+        background-color: rgb(27, 2, 19);
+    }
+    a,p
+    {
+        color: rgb(180, 114, 123);
+    }
+</style>
+
 <script>
     
     var sock = new WebSocket("ws://" + window.location.host);
@@ -33,8 +44,6 @@
     var stick_display= document.getElementById("var-b");
     var game_pad_connected=false;
     var gp;
-
-    
 
     //check for controller connection
     window.addEventListener("gamepadconnected", function() {
@@ -104,6 +113,11 @@
             let a= JSON.stringify(json); 
             send(a);
 
+        }
+        //lock the user on the page so the "B" button can be used
+        if(window.location.href.indexOf("reload") < 0)
+        {
+            window.location.href=window.location.href+"?reload"
         }
     }
 

@@ -5,7 +5,7 @@ use std::{fs::File, io};
 use std::io::{BufReader, BufRead};
 use std::sync::Mutex;
 use anyhow::Error;
-use enigo::{Enigo, MouseControllable};
+use enigo::{Enigo, MouseControllable, MouseButton, KeyboardControllable, Key};
 use serde::{Deserialize};
 
 #[macro_use]
@@ -27,6 +27,29 @@ struct Controller
     left_stick:Vec<bool>,
 }
 
+fn handle_input(input_str:&String){
+    match input_str.as_str() {
+        "MS_L"=>Enigo.mouse_down(MouseButton::Left),
+        "MS_R"=>Enigo.mouse_down(MouseButton::Right),
+        "MS_M"=>Enigo.mouse_down(MouseButton::Middle),
+        "ESC"=>Enigo.key_down(Key::Escape),
+        "ENTER"=>Enigo.key_down(Key::Return),
+        "SHIFT"=>Enigo.key_down(Key::Shift),
+        "DELETE"=>Enigo.key_down(Key::Delete),
+        "ALT"=>Enigo.key_down(Key::Alt),
+        "UP"=>Enigo.key_down(Key::UpArrow),
+        "DOWN"=>Enigo.key_down(Key::DownArrow),
+        "LEFT"=>Enigo.key_down(Key::LeftArrow),
+        "RIGHT"=>Enigo.key_down(Key::RightArrow),
+        "_"=>{},
+        _=>{
+            //using expect here isn't that big brain
+            let char=input_str.chars().last().expect("ERROR: input was not a char nor an accepted string");
+            Enigo.key_down(Key::Layout(char))
+        },
+    }
+}
+
 fn main()-> Result<(), Error>  {
     pretty_env_logger::init();
 
@@ -41,7 +64,7 @@ fn main()-> Result<(), Error>  {
 
     println!("{:#?}", GLOBAL_LINES.lock().map_err(|_| anyhow!("aliens attacked") )?);
 
-    let addr = "192.168.1.3:5000";
+    let addr= "192.168.1.10:5000";// = GLOBAL_LINES.lock().map_err(|_| anyhow!("aliens attacked"))?.last().expect("q");
 
     println!("Listening on http://{}/", addr);
 
@@ -102,7 +125,15 @@ where
             //controller data
             let cd: Controller= serde_json::from_str(output_str).map_err(|_| println!("JSON object wack"))?;
 
-
+            //cursed rust code
+            for i in 0..16 {
+                if cd.buttons[i]
+                {
+                    let temp_str=GLOBAL_LINES.lock().map_err(|_| println!("aliens attacked"))?;
+                    handle_input(temp_str.get(i).expect("some thing is wrong, idk I'm to tired"));
+                }
+            }
+        
             enigo.mouse_move_relative((cd.axes[2]*15.0) as i32, (cd.axes[3]*15.0) as i32);
 
         }
