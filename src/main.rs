@@ -27,27 +27,52 @@ struct Controller
     left_stick:Vec<bool>,
 }
 
-fn handle_input(input_str:&String){
-    match input_str.as_str() {
-        "MS_L"=>Enigo.mouse_click(MouseButton::Left),
-        "MS_R"=>Enigo.mouse_click(MouseButton::Right),
-        "MS_M"=>Enigo.mouse_click(MouseButton::Middle),
-        "ESC"=>Enigo.key_click(Key::Escape),
-        "ENTER"=>Enigo.key_click(Key::Return),
-        "SHIFT"=>Enigo.key_click(Key::Shift),
-        "DELETE"=>Enigo.key_click(Key::Delete),
-        "ALT"=>Enigo.key_click(Key::Alt),
-        "UP"=>Enigo.key_click(Key::UpArrow),
-        "DOWN"=>Enigo.key_click(Key::DownArrow),
-        "LEFT"=>Enigo.key_click(Key::LeftArrow),
-        "RIGHT"=>Enigo.key_click(Key::RightArrow),
-        "_"=>{},
-        _=>{
-            //using expect here isn't that big brain
-            let char=input_str.chars().last().expect("ERROR: input was not a char nor an accepted string");
-            Enigo.key_click(Key::Layout(char))
-        },
+//works for now, should be made better later.
+fn handle_input(input_str:&str,pressed:bool){
+    match pressed {
+        true=>{match input_str{
+            "MS_L"=>Enigo.mouse_down(MouseButton::Left),
+            "MS_R"=>Enigo.mouse_down(MouseButton::Right),
+            "MS_M"=>Enigo.mouse_down(MouseButton::Middle),
+            "ESC"=>Enigo.key_down(Key::Escape),
+            "ENTER"=>Enigo.key_down(Key::Return),
+            "SHIFT"=>Enigo.key_down(Key::Shift),
+            "DELETE"=>Enigo.key_down(Key::Delete),
+            "ALT"=>Enigo.key_down(Key::Alt),
+            "UP"=>Enigo.key_down(Key::UpArrow),
+            "DOWN"=>Enigo.key_down(Key::DownArrow),
+            "LEFT"=>Enigo.key_down(Key::LeftArrow),
+            "RIGHT"=>Enigo.key_down(Key::RightArrow),
+            "_"=>{},
+            _=>{
+                //using expect here isn't that big brain
+                let char=input_str.chars().last().expect("ERROR: input was not a char nor an accepted string");
+                Enigo.key_down(Key::Layout(char))
+            },
+        }}
+        
+        false=>{match input_str{
+            "MS_L"=>Enigo.mouse_up(MouseButton::Left),
+            "MS_R"=>Enigo.mouse_up(MouseButton::Right),
+            "MS_M"=>Enigo.mouse_up(MouseButton::Middle),
+            "ESC"=>Enigo.key_up(Key::Escape),
+            "ENTER"=>Enigo.key_up(Key::Return),
+            "SHIFT"=>Enigo.key_up(Key::Shift),
+            "DELETE"=>Enigo.key_up(Key::Delete),
+            "ALT"=>Enigo.key_up(Key::Alt),
+            "UP"=>Enigo.key_up(Key::UpArrow),
+            "DOWN"=>Enigo.key_up(Key::DownArrow),
+            "LEFT"=>Enigo.key_up(Key::LeftArrow),
+            "RIGHT"=>Enigo.key_up(Key::RightArrow),
+            "_"=>{},
+            _=>{
+                //using expect here isn't that big brain
+                let char=input_str.chars().last().expect("ERROR: input was not a char nor an accepted string");
+                Enigo.key_up(Key::Layout(char))
+            },
+        }}
     }
+   
 }
 
 fn main()-> Result<(), Error>  {
@@ -127,11 +152,8 @@ where
 
             //cursed rust code
             for i in 0..16 {
-                if cd.buttons[i]
-                {
-                    let temp_str=GLOBAL_LINES.lock().map_err(|_| println!("aliens attacked"))?;
-                    handle_input(temp_str.get(i).expect("some thing is wrong, idk I'm to tired"));
-                }
+                let temp_str=GLOBAL_LINES.lock().map_err(|_| println!("aliens attacked"))?;
+                handle_input(temp_str.get(i).expect("some thing is wrong, idk I'm to tired"),cd.buttons[i]);
             }
         
             enigo.mouse_move_relative((cd.axes[2]*15.0) as i32, (cd.axes[3]*15.0) as i32);
