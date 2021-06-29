@@ -57,6 +57,10 @@
         gamepadInfo.innerHTML = "Waiting for gamepad.";
     });
 
+    function reload_page()
+    {
+        window.location.href=window.location.href;
+    }
 
     function get_button(button)
     {
@@ -122,9 +126,9 @@
     }
 
    
-
     setInterval(loop,45);
-
+    //reload page so it won't be closed by the browser
+    setInterval(reload_page,35000);
 </script>
 </body>
 

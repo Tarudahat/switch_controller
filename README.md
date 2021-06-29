@@ -2,4 +2,4 @@
 
 Slapped together with a gotham example and some spaghetti code.
 
-(note: put any char infront of the single characters in the "layout.txt" file.)
+Note: Use lower-case characters for key mapping.

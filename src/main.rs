@@ -31,12 +31,13 @@ struct Controller
 fn handle_input(input_str:&str,pressed:bool){
     match pressed {
         true=>{match input_str{
-            "MS_L"=>Enigo.mouse_down(MouseButton::Left),
-            "MS_R"=>Enigo.mouse_down(MouseButton::Right),
-            "MS_M"=>Enigo.mouse_down(MouseButton::Middle),
+            "MS_L"=>Enigo.mouse_click(MouseButton::Left),
+            "MS_R"=>Enigo.mouse_click(MouseButton::Right),
+            "MS_M"=>Enigo.mouse_click(MouseButton::Middle),
             "ESC"=>Enigo.key_down(Key::Escape),
             "ENTER"=>Enigo.key_down(Key::Return),
             "SHIFT"=>Enigo.key_down(Key::Shift),
+            "SPACE"=>Enigo.key_down(Key::Space),
             "DELETE"=>Enigo.key_down(Key::Delete),
             "ALT"=>Enigo.key_down(Key::Alt),
             "UP"=>Enigo.key_down(Key::UpArrow),
@@ -52,12 +53,13 @@ fn handle_input(input_str:&str,pressed:bool){
         }}
         
         false=>{match input_str{
-            "MS_L"=>Enigo.mouse_up(MouseButton::Left),
-            "MS_R"=>Enigo.mouse_up(MouseButton::Right),
-            "MS_M"=>Enigo.mouse_up(MouseButton::Middle),
+            "MS_L"=>Enigo.mouse_click(MouseButton::Left),
+            "MS_R"=>Enigo.mouse_click(MouseButton::Right),
+            "MS_M"=>Enigo.mouse_click(MouseButton::Middle),
             "ESC"=>Enigo.key_up(Key::Escape),
             "ENTER"=>Enigo.key_up(Key::Return),
             "SHIFT"=>Enigo.key_up(Key::Shift),
+            "SPACE"=>Enigo.key_up(Key::Space),
             "DELETE"=>Enigo.key_up(Key::Delete),
             "ALT"=>Enigo.key_up(Key::Alt),
             "UP"=>Enigo.key_up(Key::UpArrow),
