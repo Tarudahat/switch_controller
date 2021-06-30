@@ -44,6 +44,7 @@ fn handle_input(input_str:&str,pressed:bool){
             "DOWN"=>Enigo.key_down(Key::DownArrow),
             "LEFT"=>Enigo.key_down(Key::LeftArrow),
             "RIGHT"=>Enigo.key_down(Key::RightArrow),
+            "HOME"=>Enigo.key_down(Key::Home),
             "_"=>{},
             _=>{
                 //using expect here isn't that big brain
@@ -66,11 +67,12 @@ fn handle_input(input_str:&str,pressed:bool){
             "DOWN"=>Enigo.key_up(Key::DownArrow),
             "LEFT"=>Enigo.key_up(Key::LeftArrow),
             "RIGHT"=>Enigo.key_up(Key::RightArrow),
+            "HOME"=>Enigo.key_up(Key::Home),
             "_"=>{},
             _=>{
                 //using expect here isn't that big brain
                 let char=input_str.chars().last().expect("ERROR: input was not a char nor an accepted string");
-                Enigo.key_up(Key::Layout(char))
+                Enigo.key_up(Key::Layout(char));
             },
         }}
     }
@@ -89,10 +91,10 @@ fn main()-> Result<(), Error>  {
 
     GLOBAL_LINES.lock().map_err(|_| anyhow!("aliens attacked"))?.append(&mut lines);
 
-    println!("{:#?}", GLOBAL_LINES.lock().map_err(|_| anyhow!("aliens attacked") )?);
+    println!("Key-controller mapping:{:#?}", GLOBAL_LINES.lock().map_err(|_| anyhow!("aliens attacked") )?);
 
-    let addr= "192.168.1.10:5000";// = GLOBAL_LINES.lock().map_err(|_| anyhow!("aliens attacked"))?.last().expect("q");
-
+    let addr= format!("{}:5000",local_ipaddress::get().unwrap());
+    
     println!("Listening on http://{}/", addr);
 
     gotham::start(addr, || Ok(handler));
@@ -112,7 +114,7 @@ fn handler(mut state: State) -> (State, Response<Body>) {
             };
 
             let req_id = request_id(&state).to_owned();
-
+ 
             tokio::spawn(async move {
                 match ws.await {
                     Ok(ws) => connected(req_id, ws).await,
@@ -130,21 +132,21 @@ fn handler(mut state: State) -> (State, Response<Body>) {
 }
 
 //the connection, it's the main function I guess
-async fn connected<S>(req_id: String, stream: S) -> Result<(), ()>
+async fn connected<S>(_req_id: String, stream: S) -> Result<(), ()>
 where
     S: Stream<Item = Result<ws::Message, ws::Error>> + Sink<ws::Message, Error = ws::Error>,
 {
     let (mut _sink, mut stream) = stream.split();
     //if a client enters say so
     let mut enigo = Enigo::new();
-    println!("Client {} connected", req_id);
+    //println!("Client {} connected", req_id);
     while let Some(message) = stream
         .next()
         .await
         .transpose()
         .map_err(|error| println!("Websocket receive error: {}", error))?
     {
-        println!("{}: {}", req_id, message);
+        //println!("{}: {}", req_id, message);
 
         if let ws::Message::Text(text)=message{
             let output_str = &text;
@@ -153,9 +155,13 @@ where
             let cd: Controller= serde_json::from_str(output_str).map_err(|_| println!("JSON object wack"))?;
 
             //cursed rust code
+            let temp_str=GLOBAL_LINES.lock().map_err(|_| println!("aliens attacked"))?;
+
             for i in 0..16 {
-                let temp_str=GLOBAL_LINES.lock().map_err(|_| println!("aliens attacked"))?;
                 handle_input(temp_str.get(i).expect("some thing is wrong, idk I'm to tired"),cd.buttons[i]);
+            }
+            for i in 16..20 {
+                handle_input(temp_str.get(i).expect("some thing is wrong, idk I'm to tired"),cd.left_stick[i-16]);
             }
         
             enigo.mouse_move_relative((cd.axes[2]*15.0) as i32, (cd.axes[3]*15.0) as i32);
@@ -164,7 +170,7 @@ where
 
     }
 
-    println!("Client {} disconnected", req_id);
+    //println!("Client {} disconnected", req_id);
     Ok(())
 }
 

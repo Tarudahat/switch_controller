@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <body>
 <p id="gamepad-info">Waiting for Gamepad.</p>
-<p id="var-a">Last button:</p>
-<p id="var-b">Stick axes:</p>
+<p id="var-a">Last button id:</p>
 
 <style>
     body
@@ -41,7 +40,6 @@
     var gamepadInfo = document.getElementById("gamepad-info");
     var gamepads;
     var button_index_display= document.getElementById("var-a");
-    var stick_display= document.getElementById("var-b");
     var game_pad_connected=false;
     var gp;
 
@@ -92,7 +90,7 @@
             for (let index = 0; index < gp.buttons.length; index++) {
                 //get input, this is for displaying only
                 if(get_button(gp.buttons[index])){
-                    button_index_display.innerHTML=index;
+                    button_index_display.innerHTML="Last button id: "+index.toString();
                 }
             }
 
