@@ -54,9 +54,6 @@ fn handle_input(input_str:&str,pressed:bool){
         }}
         
         false=>{match input_str{
-            "MS_L"=>Enigo.mouse_click(MouseButton::Left),
-            "MS_R"=>Enigo.mouse_click(MouseButton::Right),
-            "MS_M"=>Enigo.mouse_click(MouseButton::Middle),
             "ESC"=>Enigo.key_up(Key::Escape),
             "ENTER"=>Enigo.key_up(Key::Return),
             "SHIFT"=>Enigo.key_up(Key::Shift),
